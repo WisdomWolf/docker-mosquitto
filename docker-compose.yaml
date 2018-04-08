@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  alpine-nginx:
+    image: matriphe/alpine-nginx:html
+    container_name: "nginx-mosq"
+    environment:
+      - VIRTUAL_HOST=mqtt.developingwisdom.org
+      - LETSENCRYPT_HOST=mqtt.developingwisdom.org
+      - LETSENCRYPT_EMAIL=wisdomwolf@gmail.com
+
+  mosquitto:
+    command:
+      - mosquitto
+    container_name: mosquitto
+    image: wisdomwolf/mqtt:v1.4.14
+    entrypoint:
+      - /run.sh
+    volumes:
+    - /home/wisdomwolf/.docker/mqtt/config:/etc/mosquitto
+    - /home/wisdomwolf/.docker/mqtt/config.d:/etc/mosquitto.d
+    - /home/wisdomwolf/.docker/mqtt/persist:/var/lib/mosquitto
+    - /etc/localtime:/etc/localtime:ro
+    volumes_from:
+      - nginx-letsencrypt
+    ports:
+    - 8883:8883/tcp
+    - 9883:9883/tcp
+    environment:
+    - MOSQUITTO_VERSION=v1.4.14
+    restart: on-failure
+
